@@ -2,15 +2,15 @@
 
 ## Dependencies
 - Spring Web
-- Lombok
-- Spring Data JPA
+- Spring Data
 - H2 Database
-- Spring Boot DevTools
 
-Project: Gradle - Groovy
-Language: Java 17
-SpringBoot: 3.3.1
+## Project Configuration and Versions
+- Project: Gradle - Groovy
+- Language: Java 17
+- SpringBoot: 3.1.4
 
+## How to run
 ````shell
 # build application and run tests
 ./gradlew build

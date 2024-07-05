@@ -2,7 +2,7 @@
 
 
 ### Data Contract for the get of one cashcard
-````json
+````java
 Request
   URI: /cashcards/{id}
   HTTP Verb: GET
