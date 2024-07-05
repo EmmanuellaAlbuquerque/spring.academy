@@ -1,4 +1,8 @@
 package example.cashcard;
 
-record CashCard(Long id, Double amount) {
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
+record CashCard(@Id Long id, Double amount) {
 }
