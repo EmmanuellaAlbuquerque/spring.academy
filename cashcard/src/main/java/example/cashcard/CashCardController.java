@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Iterator;
 import java.util.Optional;
 import java.net.URI;
+import java.security.Principal;
 
 // The Controller gets injected into Spring Web
 // This tells Spring that this class is a Component of type
@@ -28,9 +29,10 @@ class CashCardController {
 
     @GetMapping("/{requestedId}")
     // @PathVariable -> comes from request URL
-    private ResponseEntity<CashCard> findById(@PathVariable Long requestedId) {
+    private ResponseEntity<CashCard> findById(@PathVariable Long requestedId, Principal principal) {
 
-        Optional<CashCard> cashCardOptional = cashCardRepository.findById(requestedId);
+//        Optional<CashCard> cashCardOptional = cashCardRepository.findById(requestedId);
+        Optional<CashCard> cashCardOptional = Optional.ofNullable(cashCardRepository.findByIdAndOwner(requestedId, principal.getName()));
 
         if (cashCardOptional.isPresent()) {
             return ResponseEntity.ok(cashCardOptional.get());
@@ -42,15 +44,16 @@ class CashCardController {
 
     @PostMapping
     // @RequestBody -> comes from request body (json) -> Spring Web will deserialize the data provided into a CashCard for us.
-    private ResponseEntity<Void> createCashCard(@RequestBody CashCard newCashCardRequest, UriComponentsBuilder ucb) {
-        CashCard savedCashCard = cashCardRepository.save(newCashCardRequest);
+    private ResponseEntity<Void> createCashCard(@RequestBody CashCard newCashCardRequest, UriComponentsBuilder ucb, Principal principal) {
+        CashCard cashCardWithOwner = new CashCard(null, newCashCardRequest.amount(), principal.getName());
+        CashCard savedCashCard = cashCardRepository.save(cashCardWithOwner);
         URI locationOfNewCashCard = ucb.path("cashcards/{id}").buildAndExpand(savedCashCard.id()).toUri();
         return ResponseEntity.created(locationOfNewCashCard).build();
     }
 
     @GetMapping
-    private ResponseEntity<Iterable<CashCard>> findAll(Pageable pageable) {
-        Page<CashCard> page = cashCardRepository.findAll(
+    private ResponseEntity<Iterable<CashCard>> findAll(Pageable pageable, Principal principal) {
+        Page<CashCard> page = cashCardRepository.findByOwner(principal.getName(),
                 PageRequest.of(
                         // Spring provides the default page and size values (they are 0 and 20, respectively)
                         pageable.getPageNumber(),
