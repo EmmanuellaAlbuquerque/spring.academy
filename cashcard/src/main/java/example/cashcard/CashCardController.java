@@ -1,9 +1,14 @@
 package example.cashcard;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import java.util.Iterator;
 import java.util.Optional;
 import java.net.URI;
 
@@ -41,5 +46,19 @@ class CashCardController {
         CashCard savedCashCard = cashCardRepository.save(newCashCardRequest);
         URI locationOfNewCashCard = ucb.path("cashcards/{id}").buildAndExpand(savedCashCard.id()).toUri();
         return ResponseEntity.created(locationOfNewCashCard).build();
+    }
+
+    @GetMapping
+    private ResponseEntity<Iterable<CashCard>> findAll(Pageable pageable) {
+        Page<CashCard> page = cashCardRepository.findAll(
+                PageRequest.of(
+                        // Spring provides the default page and size values (they are 0 and 20, respectively)
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        // We define the default sort parameter
+                        pageable.getSortOr(Sort.by(Sort.Direction.ASC, "amount"))
+                ));
+
+        return ResponseEntity.ok(page.getContent());
     }
 }
